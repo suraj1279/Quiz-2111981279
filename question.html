@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quiz App</title>
+  </head>
+  <body>
+    <div class="main">
+      <link rel="stylesheet" href="quiz.css" />
+      <div class="container mt-sm-5 my-1">
+        <div class="question ml-sm-5 pl-sm-5 pt-2">
+          <div class="py-2 h5" id="que"></div>
+
+          <div class="ml-md-3 ml-sm-3 pl-md-5 pt-sm-0 pt-3" id="options">
+            <table>
+              <tr>
+                <td>
+                  <input type="radio" name="radio" id="o1" class="answer" />
+                </td>
+                <td>
+                  <label class="options" id="op1" for="o1"></label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="radio" name="radio" id="o2" class="answer" />
+                </td>
+                <td>
+                  <label class="options" id="op2" for="o2"></label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="radio" name="radio" id="o3" class="answer" />
+                </td>
+                <td>
+                  <label class="options" id="op3" for="o3"></label>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <input type="radio" name="radio" id="o4" class="answer" />
+                </td>
+                <td><label class="options" id="op4" for="o4"></label></td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <button class="btn btn-success" id="btn1">Next</button>
+        <div id="showscore" class="scoreArea"></div>
+      </div>
+    </div>
+
+    <script>
+      var c = 1;
+      var Ques;
+      let a = [];
+      let b = [];
+
+      var container = document.getElementById("container");
+      let que = document.getElementById("que");
+      let o1 = document.getElementById("o1");
+      let o2 = document.getElementById("o2");
+      let o3 = document.getElementById("o3");
+      let o4 = document.getElementById("o4");
+      let op1 = document.getElementById("op1");
+      let op2 = document.getElementById("op2");
+      let op3 = document.getElementById("op3");
+      let op4 = document.getElementById("op4");
+      let btn = document.getElementById("btn1");
+      let answers = document.querySelectorAll(".answer");
+
+      fetch("/Questions")
+        .then((response) => {
+          return response.json();
+        })
+        .then((ques) => {
+          Ques = ques;
+          console.log("DFG", Ques);
+          a = Ques;
+          for (let i = 0; i < 5; i++) {
+            let randomNumber = Math.floor(Math.random() * 10);
+            b[i] = Ques[randomNumber];
+          }
+
+          let quesCount = 0;
+          let score = 0;
+
+          const QuestionLoad = () => {
+            const questionList = b[quesCount];
+            que.innerHTML = questionList.name;
+            o1.value = questionList.option1;
+            o2.value = questionList.option2;
+            o3.value = questionList.option3;
+            o4.value = questionList.option4;
+            op1.innerHTML = questionList.option1;
+            op2.innerHTML = questionList.option2;
+            op3.innerHTML = questionList.option3;
+            op4.innerHTML = questionList.option4;
+
+            answers = document.querySelectorAll(".answer");
+            answers.forEach((answer) => {
+              answer.checked = false;
+            });
+          };
+
+          QuestionLoad();
+
+          const getCheckAnswer = () => {
+            let selectedAnswer = "";
+            answers.forEach((curAns) => {
+              if (curAns.checked) {
+                selectedAnswer = curAns.value;
+              }
+            });
+            return selectedAnswer;
+          };
+
+          btn.addEventListener("click", () => {
+            const checkedAnswer = getCheckAnswer();
+            console.log(checkedAnswer);
+            console.log(b[quesCount].correct);
+            if (checkedAnswer === b[quesCount].correct) {
+              score++;
+            }
+
+            quesCount++;
+            if (quesCount < b.length) {
+              QuestionLoad();
+            } else {
+              showscore.innerHTML = `<h3>You scored ${score}/${b.length}.</h3>
+                <button class="btn" onclick="location.reload()">play Again</button>`;
+            }
+          });
+        });
+    </script>
+  </body>
+</html>
